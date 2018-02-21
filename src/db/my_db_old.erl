@@ -6,17 +6,18 @@
 %%% @end
 %%% Created : 07. Feb 2018 8:34 PM
 %%%-------------------------------------------------------------------
--module(my_db).
+-module(my_db_old).
 -author("Dag").
 
 %% API
--export([start/0, stop/0, write/2, delete/1, read/1, match/1, unlock/0, lock/0, crash/0, test_if_backend_locked/0, test/0]).
+-export([stop/0, write/2, delete/1, read/1, match/1, unlock/0, lock/0, crash/0, test_if_backend_locked/0, test/0, start/0]).
 
-%starts new db process and creates a new db
+%%starts new db process and creates a new db
 start()->
-  register(dbconnection, spawn(db,backend_loop,[])),
+  register(dbconnection, spawn(db_old,backend_loop,[])),
   dbconnection ! new,
   ok.
+
 %stop db process
 stop()->
   dbconnection ! stop,
@@ -50,8 +51,8 @@ match(Element)->
 lock()->
   dbconnection ! {lock,self()},
   receive
-  locked->
-    ok
+    locked->
+      ok
   end.
 %unlocks the db
 unlock()->
@@ -60,7 +61,6 @@ unlock()->
 %makes the process crash in a bad way
 crash()->
   exit(non_normal_exit).
-
 
 %%% testing concurrent locking
 test_if_backend_locked()->

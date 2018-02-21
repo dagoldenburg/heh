@@ -49,16 +49,16 @@ insert_read_all() ->
     Db0 = init_db([{curt,1},{bert,2},{sune,3}]),
 
     io:format(" 1", []),
-    {ok,1} = db:read(curt, Db0),
+    {ok,1} = db_old:read(curt, Db0),
 
     io:format(" 2", []),
-    {ok,2} = db:read(bert, Db0),
+    {ok,2} = db_old:read(bert, Db0),
 
     io:format(" 3", []),
-    {ok,3} = db:read(sune, Db0),
+    {ok,3} = db_old:read(sune, Db0),
 
     io:format(" 4", []),			%Read non-existent key
-    {error,instance} = db:read(sten, Db0),
+    {error,instance} = db_old:read(sten, Db0),
 
     io:format(" - ok\n").
 
@@ -70,20 +70,20 @@ insert_delete_one() ->
     Db0 = init_db([{curt,1},{bert,2},{sune,3}]),
 
     io:format(" 1", []),
-    {ok,1} = db:read(curt, Db0),
-    {error,instance} = db:read(curt, db:delete(curt, Db0)),
+    {ok,1} = db_old:read(curt, Db0),
+    {error,instance} = db_old:read(curt, db_old:delete(curt, Db0)),
 
     io:format(" 2", []),
-    {ok,2} = db:read(bert, Db0),
-    {error,instance} = db:read(bert, db:delete(bert, Db0)),
+    {ok,2} = db_old:read(bert, Db0),
+    {error,instance} = db_old:read(bert, db_old:delete(bert, Db0)),
 
     io:format(" 3", []),
-    {ok,3} = db:read(sune, Db0),
-    {error,instance} = db:read(sune, db:delete(sune, Db0)),
+    {ok,3} = db_old:read(sune, Db0),
+    {error,instance} = db_old:read(sune, db_old:delete(sune, Db0)),
 
     io:format(" 4", []),			%Delete non-existent key
-    {error,instance} = db:read(sten, Db0),
-    {error,instance} = db:read(sten, db:delete(sten, Db0)),
+    {error,instance} = db_old:read(sten, Db0),
+    {error,instance} = db_old:read(sten, db_old:delete(sten, Db0)),
 
     io:format(" - ok\n").
 
@@ -93,17 +93,17 @@ insert_delete_one() ->
 
 insert_delete_all() ->
     io:format("Running insert_delete_all", []),
-    Empty = db:new(),
+    Empty = db_old:new(),
     Db0 = init_db([{curt,1},{bert,2},{sune,3}]),
 
     io:format(" 1", []),
-    Empty = lists:foldl(fun (K, D) -> db:delete(K, D) end,
+    Empty = lists:foldl(fun (K, D) -> db_old:delete(K, D) end,
 			Db0, [curt,bert,sune]),
     io:format(" 2", []),
-    Empty = lists:foldl(fun (K, D) -> db:delete(K, D) end,
+    Empty = lists:foldl(fun (K, D) -> db_old:delete(K, D) end,
 			Db0, [bert,sune,curt]),
     io:format(" 3", []),
-    Empty = lists:foldl(fun (K, D) -> db:delete(K, D) end,
+    Empty = lists:foldl(fun (K, D) -> db_old:delete(K, D) end,
 			Db0, [sune,bert,curt]),
     io:format(" - ok\n").
 
@@ -115,16 +115,16 @@ insert_overwrite_one() ->
     Db0 = init_db([{curt,1},{bert,2},{sune,3}]),
 
     io:format(" 1", []),
-    {ok,1} = db:read(curt, Db0),
-    {ok,10} = db:read(curt, db:write(curt, 10, Db0)),
+    {ok,1} = db_old:read(curt, Db0),
+    {ok,10} = db_old:read(curt, db_old:write(curt, 10, Db0)),
 
     io:format(" 2", []),
-    {ok,2} = db:read(bert, Db0),
-    {ok,20} = db:read(bert, db:write(bert, 20, Db0)),
+    {ok,2} = db_old:read(bert, Db0),
+    {ok,20} = db_old:read(bert, db_old:write(bert, 20, Db0)),
 
     io:format(" 3", []),
-    {ok,3} = db:read(sune, Db0),
-    {ok,30} = db:read(sune, db:write(sune, 30, Db0)),
+    {ok,3} = db_old:read(sune, Db0),
+    {ok,30} = db_old:read(sune, db_old:write(sune, 30, Db0)),
 
     io:format(" - ok\n").
 
@@ -137,25 +137,25 @@ insert_overwrite_all() ->
     Db1 = write_db([{curt,10},{bert,20},{sune,30}], Db0),
 
     io:format(" 1", []),
-    {ok,10} = db:read(curt, Db1),
+    {ok,10} = db_old:read(curt, Db1),
 
     io:format(" 2", []),
-    {ok,20} = db:read(bert, Db1),
+    {ok,20} = db_old:read(bert, Db1),
 
     io:format(" 3", []),
-    {ok,30} = db:read(sune, Db1),
+    {ok,30} = db_old:read(sune, Db1),
 
     io:format(" 4", []),			%Read non-existent key
-    {error,instance} = db:read(sten, Db1),
+    {error,instance} = db_old:read(sten, Db1),
     io:format(" - ok\n").
 
 %% init_db([{Key,Val}]) -> Database.
 %%  Create and initialise a database with keys curt, bert and sune.
 
-init_db(Vals) -> write_db(Vals, db:new()).
+init_db(Vals) -> write_db(Vals, db_old:new()).
 
 %% write_db([{Key,Val}], Database) -> Database.
 %%  Writes in all key-val into existing database.
 
 write_db(Vals, Db) ->
-    lists:foldl(fun ({K,V}, D) -> db:write(K, V, D) end, Db, Vals).
+    lists:foldl(fun ({K,V}, D) -> db_old:write(K, V, D) end, Db, Vals).
